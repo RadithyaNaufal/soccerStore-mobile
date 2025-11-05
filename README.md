@@ -1,16 +1,7 @@
-# soccer_store
-
-A new Flutter project.
-
-## Getting Started
-
-This project is a starting point for a Flutter application.
-
-A few resources to get you started if this is your first Flutter project:
-
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
-
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+# Assignment 7
+1. A widget tree is like a map of all of the widgets. The top widget is the parent and the widgets inside it are children. For example, a Scaffold can have an AppBar and a Column. This tree tells Flutter how to build your screen, one piece inside another.
+2. In this project, i use MaterialApp for the main app. I use Scaffold to make the page, AppBar for the top bar, and Text to show words. I use Column and Row to put widgets in a line. I also use GridView to make a grid of buttons. My custom widgets are InfoCard and ItemCard, which use Material for design, Icon for symbols, and InkWell to make them tappable.
+3. The MaterialApp widget is the boss of the whole app. It is to give your app a style (Material Design), a theme (like colors), and to help move between pages. It is the root because it holds everything, every other page or widget lives inside MaterialApp.
+4. A StatelessWidget is simple. It does not change after we build it. A StatefulWidget can change. It remembers information and can look different later.
+5. A BuildContext is like an address. It tells a widget its location in the widget tree. It is important because widgets use their address to find other widgets. In the build method, i use context to get things from parents, like Theme.of(context) to get a color, or ScaffoldMessenger.of(context) to show a SnackBar.
+6. "Hot reload" is very fast. It updates your code, but it keeps your app's data. It is good for fixing the look of your app. "Hot restart" is slower. It throws away all the app's data and starts the app new. You use hot restart when hot reload is not enough, or your app's data is broken.
