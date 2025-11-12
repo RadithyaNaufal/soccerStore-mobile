@@ -5,3 +5,9 @@
 4. A StatelessWidget is simple. It does not change after we build it. A StatefulWidget can change. It remembers information and can look different later.
 5. A BuildContext is like an address. It tells a widget its location in the widget tree. It is important because widgets use their address to find other widgets. In the build method, i use context to get things from parents, like Theme.of(context) to get a color, or ScaffoldMessenger.of(context) to show a SnackBar.
 6. "Hot reload" is very fast. It updates your code, but it keeps your app's data. It is good for fixing the look of your app. "Hot restart" is slower. It throws away all the app's data and starts the app new. You use hot restart when hot reload is not enough, or your app's data is broken.
+
+# Assignment 8
+1. I use Navigator.push() to open a new screen on top of the current one, like when opening the "Add Product" form. Flutter then automatically adds a "back" arrow to the AppBar to let the user return. I use Navigator.pushReplacement() to go to a new screen and replace the old one, like when tapping "Home" in the drawer.
+2. I use Scaffold as the base for every page, including my Home, Add Product, and My Products pages. By adding the AppBar to the top and my LeftDrawer to the drawer property of the Scaffold, every page instantly gets the same top bar and side menu. This makes my app's layout consistent.
+3. In my ProductFormPage, I use Padding to add space around each TextFormField so they aren't crowded. I wrap my Column of form fields in a SingleChildScrollView, which is very important. This lets the user scroll when the keyboard opens, preventing the app from crashing or hiding fields.
+4. I set my app's color theme one time in main.dart using ThemeData. By setting the primarySwatch to Colors.blue, I made blue the main brand color. This automatically makes my AppBar and the "Save" button blue, giving my app a consistent look without extra code on each page.
