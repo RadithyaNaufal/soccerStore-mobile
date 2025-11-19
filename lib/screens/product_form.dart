@@ -1,4 +1,8 @@
+import 'dart:convert';
 import 'package:flutter/material.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:soccer_store/screens/menu.dart';
 import 'package:soccer_store/widgets/left_drawer.dart';
 
 class ProductFormPage extends StatefulWidget {
@@ -27,15 +31,19 @@ class _ProductFormPageState extends State<ProductFormPage> {
 
   @override
   Widget build(BuildContext context) {
+    final request = context.watch<CookieRequest>();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Center(
-          child: Text(
-            'Add Product Form',
-          ),
-        ),
+        title: const Text('Add Product Form'),
         backgroundColor: Colors.blue,
         foregroundColor: Colors.white,
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
+        ),
       ),
       drawer: const LeftDrawer(),
       body: Form(
@@ -191,50 +199,65 @@ class _ProductFormPageState extends State<ProductFormPage> {
                     padding: const EdgeInsets.all(8.0),
                     child: ElevatedButton(
                       style: ButtonStyle(
-                        backgroundColor:
-                            WidgetStateProperty.all(Colors.blue),
+                        backgroundColor: WidgetStateProperty.all(Colors.blue),
                       ),
-                      onPressed: () {
+                      onPressed: () async {
                         if (_formKey.currentState!.validate()) {
-                          showDialog(
-                            context: context,
-                            builder: (context) {
-                              return AlertDialog(
-                                title: const Text('Product saved successfully!'),
-                                content: SingleChildScrollView(
-                                  child: Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
-                                    children: [
-                                      Text('Name: $_name'),
-                                      Text('Price: $_price'),
-                                      Text('Description: $_description'),
-                                      Text('Thumbnail: $_thumbnail'),
-                                      Text('Category: $_category'),
-                                      Text('Is Featured: $_isFeatured'),
-                                    ],
-                                  ),
-                                ),
-                                actions: [
-                                  TextButton(
-                                    child: const Text('OK'),
-                                    onPressed: () {
-                                      _formKey.currentState!.reset();
-                                      setState(() {
-                                        _name = "";
-                                        _price = 0;
-                                        _description = "";
-                                        _thumbnail = "";
-                                        _category = "soccerBall";
-                                        _isFeatured = false;
-                                      });
-                                      Navigator.pop(context);
-                                      Navigator.pop(context);
-                                    },
-                                  ),
-                                ],
-                              );
-                            },
+                          final response = await request.postJson(
+                            "http://127.0.0.1:8000/create-news-ajax/",
+                            jsonEncode(<String, dynamic>{
+                              'name': _name,
+                              'price': _price.toString(),
+                              'description': _description,
+                              'thumbnail': _thumbnail,
+                              'category': categoryOptions[_category],
+                              'is_featured': _isFeatured.toString(),
+                            }),
                           );
+
+                          if (context.mounted) {
+                            if (response['status'] == 'success') {
+                              showDialog(
+                                context: context,
+                                builder: (context) {
+                                  return AlertDialog(
+                                    title: const Text('Product Saved Successfully!'),
+                                    content: SingleChildScrollView(
+                                      child: Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          Text('Name: $_name'),
+                                          Text('Price: $_price'),
+                                          Text('Description: $_description'),
+                                          Text('Thumbnail: ${_thumbnail.length > 30 ? "${_thumbnail.substring(0, 30)}..." : _thumbnail}'),
+                                          Text('Category: ${categoryOptions[_category]}'),
+                                          Text('Is Featured: $_isFeatured'),
+                                        ],
+                                      ),
+                                    ),
+                                    actions: [
+                                      TextButton(
+                                        child: const Text('OK'),
+                                        onPressed: () {
+                                          Navigator.pop(context);
+                                          Navigator.pushReplacement(
+                                            context,
+                                            MaterialPageRoute(builder: (context) => MyHomePage()),
+                                          );
+                                        },
+                                      ),
+                                    ],
+                                  );
+                                },
+                              );
+                            } else {
+                              ScaffoldMessenger.of(context).showSnackBar(
+                                const SnackBar(
+                                  content: Text("Something went wrong, please try again."),
+                                ),
+                              );
+                            }
+                          }
                         }
                       },
                       child: const Text(

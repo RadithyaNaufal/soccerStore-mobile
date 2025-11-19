@@ -1,29 +1,82 @@
 import 'package:flutter/material.dart';
+import 'package:pbp_django_auth/pbp_django_auth.dart';
+import 'package:provider/provider.dart';
+import 'package:soccer_store/models/item_model.dart';
 import 'package:soccer_store/widgets/left_drawer.dart';
+import 'package:soccer_store/widgets/product_card.dart';
 
-class AllProductsPage extends StatelessWidget {
+class AllProductsPage extends StatefulWidget {
   const AllProductsPage({super.key});
 
   @override
+  State<AllProductsPage> createState() => _AllProductsPageState();
+}
+
+class _AllProductsPageState extends State<AllProductsPage> {
+  Future<List<ItemModel>>? _future;
+
+  Future<List<ItemModel>> fetchItems() async {
+    final request = Provider.of<CookieRequest>(context, listen: false);
+    final response = await request.get('http://127.0.0.1:8000/get-news-json/');
+
+    var data = response;
+
+    List<ItemModel> listItems = [];
+    for (var d in data) {
+      if (d != null) {
+        listItems.add(ItemModel.fromJson(d));
+      }
+    }
+    return listItems;
+  }
+
+  @override
   Widget build(BuildContext context) {
+    _future ??= fetchItems();
+
     return Scaffold(
       appBar: AppBar(
-        title: const Text(
-          'All Products',
-          style: TextStyle(
-            color: Colors.white,
-            fontWeight: FontWeight.bold,
-          ),
+        title: const Text('All Products'),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
+          onPressed: () {
+            Navigator.pop(context);
+          },
         ),
-        backgroundColor: Colors.blue,
-        foregroundColor: Colors.white,
       ),
       drawer: const LeftDrawer(),
-      body: const Center(
-        child: Text(
-          'All of our Products.',
-          style: TextStyle(fontSize: 20),
-        ),
+      body: FutureBuilder(
+        future: _future,
+        builder: (context, AsyncSnapshot snapshot) {
+          if (snapshot.connectionState == ConnectionState.waiting) {
+            return const Center(child: CircularProgressIndicator());
+          } else if (snapshot.hasError) {
+             return Center(child: Text("Error: ${snapshot.error}"));
+          } else {
+            if (!snapshot.hasData || snapshot.data!.isEmpty) {
+              return const Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    Text(
+                      "No products available.",
+                      style: TextStyle(color: Color(0xff59A5D8), fontSize: 20),
+                    ),
+                    SizedBox(height: 8),
+                  ],
+                ),
+              );
+            } else {
+              return ListView.builder(
+                itemCount: snapshot.data!.length,
+                itemBuilder: (_, index) {
+                  final item = snapshot.data![index];
+                  return ProductCard(item: item);
+                },
+              );
+            }
+          }
+        },
       ),
     );
   }
